@@ -1,0 +1,35 @@
+version: "3.7"
+
+services:
+  cloud-store:
+    image: quay.io/minio/minio
+    container_name: cloud-store
+    environment:
+      MINIO_ROOT_USER: AKIAIOSFODNN7EXAMPLE
+      MINIO_ROOT_PASSWORD: wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
+    command: server /data --console-address ":9001"
+    ports:
+      - 9000:9000
+      - 9001:9001
+    networks:
+      - dagster_network
+
+  customer_db:
+    image: postgres:13
+    container_name: customer_db
+    environment:
+      POSTGRES_USER: customer_ms
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: customer
+    volumes:
+      - ./customer_db_setup:/docker-entrypoint-initdb.d
+    restart: always
+    ports:
+      - "5432:5432"
+    networks:
+      - dagster_network
+
+networks:
+  dagster_network:
+    driver: bridge
+    name: dagster_network
